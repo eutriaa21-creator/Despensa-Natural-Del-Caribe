@@ -151,6 +151,32 @@ Desde `backend/`:
 4. Configura `APP_CORS_ALLOWED_ORIGINS` en el backend con el origen exacto de Vercel, por ejemplo `https://tu-proyecto.vercel.app`.
 5. Si frontend y backend usan HTTPS en dominios distintos, configura `APP_SESSION_COOKIE_SAME_SITE=none` y `APP_SESSION_COOKIE_SECURE=true` en el backend.
 
+### Preparar y desplegar backend + MySQL en Render
+
+El repositorio incluye `render.yaml` y `backend/Dockerfile` para publicar Spring Boot en el plan gratuito de Render, conectado a MySQL 8 Free de Aiven. Se mantienen las tecnologías del proyecto y no se configura almacenamiento pago. Aiven ofrece 1 GB de almacenamiento y no requiere tarjeta; puede apagar servicios gratuitos con poca actividad. Render Free duerme el backend después de 15 minutos sin tráfico, y el primer acceso posterior puede tardar cerca de un minuto. Es suficiente para pruebas con datos ficticios, no para datos importantes. [Límites gratuitos de Aiven](https://aiven.io/docs/products/mysql/concepts/mysql-free-tier) y [límites gratuitos de Render](https://render.com/docs/free).
+
+1. En Aiven crea un servicio **MySQL → Free**. Espera hasta que esté disponible y copia el host, puerto, nombre de base de datos, usuario y contraseña que aparecen en su consola. Usa solo datos de prueba.
+2. En Render elige **New → Blueprint**, conecta el repositorio GitHub y selecciona la rama `main`. Confirma que el servicio `despensa-backend` use el plan **Free**. El Blueprint pedirá `DB_URL`, `DB_USERNAME` y `DB_PASSWORD`; introduce ahí las credenciales de Aiven. No las pongas en el repositorio.
+3. Construye `DB_URL` con los datos de Aiven:
+
+   ```text
+   jdbc:mysql://HOST_AIVEN:PUERTO/BASE_AIVEN?sslMode=REQUIRED&serverTimezone=UTC
+   ```
+
+   Reemplaza los marcadores. Usa el usuario y contraseña entregados por Aiven para `DB_USERNAME` y `DB_PASSWORD`.
+4. Copia la URL HTTPS pública del backend y úsala en `frontend/config.js`:
+
+   ```js
+   API_BASE_URL: isLocalDevelopment ? "http://localhost:8080" : "https://TU-BACKEND.onrender.com"
+   ```
+
+   Reemplaza `https://TU-BACKEND.onrender.com` con la URL asignada por Render. Guarda, crea el commit y haz `git push` a `main`; Vercel reconstruirá el frontend.
+5. Comprueba `https://TU-BACKEND.onrender.com/auth/status`. Debe responder con JSON (por ejemplo `setupRequired: true` en una base nueva). Luego comprueba el registro inicial y las operaciones de inventario desde Vercel.
+
+El Blueprint incluye el origen publicado de Vercel en `APP_CORS_ALLOWED_ORIGINS` y configura cookies seguras para HTTPS. Si cambia el dominio de Vercel, actualiza el valor de CORS en Render y vuelve a desplegar el backend. El frontend publicado no puede acceder a una API que solo esté en `localhost`.
+
+Este proyecto guarda las sesiones en memoria, por lo que un reinicio del backend cierra las sesiones. Para evitar cargos, no agregues una tarjeta a las cuentas gratuitas; si se agota una cuota, el proveedor puede suspender el servicio. Usa únicamente información ficticia durante la prueba y exporta tus datos de inventario antes de eliminar la instancia MySQL.
+
 No publiques el backend o la base de datos con credenciales personales, claves de prueba o datos reales. La configuración y seguridad del proveedor de base de datos deben cubrir el acceso remoto y proteger sus secretos.
 
 ## Solución de problemas
