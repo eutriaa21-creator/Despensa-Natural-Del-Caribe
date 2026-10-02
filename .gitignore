@@ -1,0 +1,49 @@
+# Java / Maven
+**/target/
+**/build/
+.mvn/wrapper/maven-wrapper.jar
+
+# Node / frontend
+**/node_modules/
+**/dist/
+**/.next/
+**/.vite/
+**/coverage/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+**/application-local.properties
+**/application-dev.properties
+**/application-secret.properties
+.envrc
+*.pem
+*.key
+
+# Local databases, exports, backups, and logs
+/data/
+/backups/
+*.db
+*.mv.db
+*.sqlite
+*.sqlite3
+*.sql.gz
+*.dump
+*.bak
+*.log
+
+# IDE and OS
+.idea/
+.vscode/
+**/.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Vercel local state
+.vercel/
