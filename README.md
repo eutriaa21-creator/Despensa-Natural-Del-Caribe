@@ -147,7 +147,7 @@ Desde `backend/`:
 
 1. Crea un proyecto de Vercel con `frontend/` como directorio raíz y sin comando de build; el sitio es estático.
 2. Publica el backend y MySQL en servicios accesibles desde internet: `localhost` en el navegador de cada visitante no apunta a tu computadora.
-3. Cambia `API_BASE_URL` en `frontend/config.js` por la URL pública del backend.
+3. Cambia `API_BASE_URL` en `frontend/config.js` por la URL HTTPS pública del backend. El frontend ya no intenta contactar `localhost:8080` cuando se visita desde Vercel.
 4. Configura `APP_CORS_ALLOWED_ORIGINS` en el backend con el origen exacto de Vercel, por ejemplo `https://tu-proyecto.vercel.app`.
 5. Si frontend y backend usan HTTPS en dominios distintos, configura `APP_SESSION_COOKIE_SAME_SITE=none` y `APP_SESSION_COOKIE_SECURE=true` en el backend.
 

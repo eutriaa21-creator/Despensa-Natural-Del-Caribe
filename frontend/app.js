@@ -1,5 +1,6 @@
 (() => {
-  const API_BASE = (window.APP_CONFIG?.API_BASE_URL || "http://localhost:8080").replace(/\/$/, "");
+  const API_BASE = String(window.APP_CONFIG?.API_BASE_URL ?? "").trim().replace(/\/$/, "");
+  const API_NOT_CONFIGURED = "La web está publicada, pero falta configurar la URL pública del backend. Aloja Spring Boot y MySQL y define esa URL en frontend/config.js.";
   const state = { products: [], laboratories: [], presentations: [], lots: [], filter: "all", query: "", lotQuery: "", productLab: "all", period: 90, setupRequired: false, username: null, busy: false };
   const $ = (selector) => document.querySelector(selector);
   const today = new Date();
@@ -458,6 +459,13 @@
   }
 
   async function checkSession() {
+    if (!API_BASE) {
+      updateAuthForm(false);
+      setConnection(false, "API sin configurar");
+      setAuthMessage(API_NOT_CONFIGURED, true);
+      $("#auth-submit").disabled = true;
+      return;
+    }
     try {
       const response = await fetch(`${API_BASE}/auth/status`, { cache: "no-store", credentials: "include" });
       const status = await response.json();
@@ -471,6 +479,10 @@
 
   async function submitAuth(event) {
     event.preventDefault();
+    if (!API_BASE) {
+      setAuthMessage(API_NOT_CONFIGURED, true);
+      return;
+    }
     if (state.busy) return;
     const username = $("#auth-username").value.trim();
     const password = $("#auth-password").value;
